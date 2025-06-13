@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Lakshmi Siva Ganesh's Personal Portfolio - Interactive Resume" />
+<title>LSGV - Lakshmi Siva Ganesh Portfolio</title>
+<style>
+  /* Import Google Font Roboto */
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+  /* CSS Variables for vibrant colors */
+  :root {
+    --primary-color: #6c63ff;
+    --accent-color: #00d8ff;
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --card-bg: #1e1e2f;
+    --button-bg: var(--accent-color);
+    --button-hover-bg: #00a6cc;
+    --shadow-color: rgba(0, 216, 255, 0.4);
+    --border-radius: 16px;
+    --transition-speed: 0.3s;
+  }
+
+  /* Reset and base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  a {
+    color: var(--accent-color);
+    text-decoration: none;
+  }
+  a:hover, a:focus {
+    text-decoration: underline;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    display: block;
+  }
+  h1, h2, h3, h4 {
+    margin-top: 0;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+  p, li {
+    font-weight: 400;
+  }
+  button {
+    background-color: var(--button-bg);
+    border: none;
+    color: var(--bg-color);
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    transition: background-color var(--transition-speed), transform var(--transition-speed);
+    font-size: 1rem;
+  }
+  button:hover, button:focus {
+    background-color: var(--button-hover-bg);
+    outline: none;
+    transform: scale(1.05);
+  }
+  /* Container */
+  .container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 0;
+  }
+  header {
+    background: var(--card-bg);
+    padding: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header .nav-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1100px;
+    margin: auto;
+    padding: 0 1rem;
+  }
+  header h1 {
+    font-size: 1.8rem;
+    letter-spacing: 0.08rem;
+  }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    padding-left: 0;
+    margin: 0;
+  }
+  nav li {
+    position: relative;
+  }
+  nav a {
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    transition: background-color var(--transition-speed);
+  }
+  nav a:hover, nav a:focus {
+    background-color: var(--primary-color);
+    color: var(--bg-color);
+  }
+
+  /* Sections */
+  section {
+    margin-bottom: 3rem;
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  }
+  section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  /* Profile photo + title */
+  .about-flex {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .profile-photo {
+    width: 180px;
+    min-width: 180px;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    box-shadow: 0 4px 20px var(--shadow-color);
+    border-radius: var(--border-radius);
+    flex-shrink: 0;
+  }
+  .about-text {
+    flex: 1 1 280px;
+  }
+  .about-text h3 {
+    color: var(--accent-color);
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .about-text p {
+    font-size: 1.1rem;
+    margin-top: 0;
+  }
+
+  /* Resume & Education & Work Experience */
+  .resume-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .resume-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  .resume-list li {
+    margin-bottom: 1.25rem;
+  }
+  .resume-list strong {
+    display: block;
+    color: var(--accent-color);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  /* Skills as tags */
+  .skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  .skills-list li {
+    background: var(--primary-color);
+    padding: 0.4rem 1rem;
+    border-radius: 40px;
+    color: var(--bg-color);
+    font-weight: 700;
+    font-size: 0.9rem;
+    user-select: none;
+    box-shadow: 0 3px 5px var(--shadow-color);
+    transition: background-color var(--transition-speed);
+  }
+  .skills-list li:hover,
+  .skills-list li:focus {
+    background: var(--accent-color);
+    cursor: default;
+    outline: none;
+  }
+
+  /* Projects */
+  .projects-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+    gap: 1.5rem;
+  }
+  .project-card {
+    background: #2a2a40;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px var(--shadow-color);
+    transition: transform var(--transition-speed);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .project-card:hover,
+  .project-card:focus-within {
+    transform: translateY(-8px);
+  }
+  .project-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+  }
+  .project-description {
+    flex-grow: 1;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  .project-link {
+    align-self: flex-start;
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .project-link svg {
+    width: 1rem;
+    height: 1rem;
+    fill: var(--accent-color);
+    transition: transform var(--transition-speed);
+  }
+  .project-link:hover svg,
+  .project-link:focus svg {
+    transform: translateX(4px);
+  }
+
+  /* Certifications */
+  .certifications-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  .certifications-list li {
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+
+  /* Testimonials */
+  .testimonials-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .testimonial {
+    background: #292946;
+    padding: 1.5rem 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0px 4px 15px var(--shadow-color);
+    font-style: italic;
+    position: relative;
+    color: var(--accent-color);
+  }
+  .testimonial::before {
+    content: "“";
+    font-size: 3rem;
+    position: absolute;
+    top: 0.2rem;
+    left: 1rem;
+    color: var(--primary-color);
+  }
+  .testimonial-footer {
+    margin-top: 1rem;
+    font-weight: 700;
+    font-style: normal;
+    color: var(--text-color);
+  }
+
+  /* Contact form */
+  form {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 480px;
+  }
+  label {
+    display: inline-block;
+    color: var(--accent-color);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  input[type="text"],
+  input[type="email"],
+  textarea {
+    padding: 0.6rem 1rem;
+    border-radius: var(--border-radius);
+    border: none;
+    background: #1a1a2b;
+    color: var(--text-color);
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 48px;
+    transition: box-shadow var(--transition-speed);
+  }
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  textarea:focus {
+    outline: none;
+    box-shadow: 0 0 8px var(--accent-color);
+  }
+  textarea {
+    min-height: 120px;
+  }
+
+  /* Footer */
+  footer {
+    background: var(--card-bg);
+    text-align: center;
+    padding: 1rem 1rem 2rem;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.7);
+  }
+  footer a {
+    color: var(--accent-color);
+    font-weight: 700;
+  }
+  footer a:hover, footer a:focus {
+    text-decoration: underline;
+  }
+
+  /* Responsive - Mobile-first */
+  @media (max-width: 640px) {
+    .about-flex {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .about-text {
+      flex: none;
+    }
+    .resume-section {
+      grid-template-columns: 1fr;
+    }
+    nav ul {
+      flex-direction: column;
+      gap: 1rem;
+      background: var(--card-bg);
+      position: fixed;
+      inset: 60px 0 0 0;
+      padding: 1rem;
+      overflow-y: auto;
+      transform: translateX(-110%);
+      transition: transform var(--transition-speed) ease;
+      z-index: 90;
+      border-top: 1px solid var(--primary-color);
+      border-bottom: 1px solid var(--primary-color);
+    }
+
+    nav ul.show {
+      transform: translateX(0);
+    }
+    .menu-toggle {
+      display: block;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 2rem;
+      cursor: pointer;
+    }
+  }
+  @media (min-width: 641px) {
+    .menu-toggle {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav-inner container">
+    <h1>LSGV - Lakshmi Siva Ganesh</h1>
+    <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">&#9776;</button>
+    <nav aria-label="Primary navigation">
+      <ul id="nav-menu">
+        <li><a href="#about" tabindex="0">About Me</a></li>
+        <li><a href="#resume" tabindex="0">Resume</a></li>
+        <li><a href="#skills" tabindex="0">Skills</a></li>
+        <li><a href="#projects" tabindex="0">Projects</a></li>
+        <li><a href="#certifications" tabindex="0">Certifications</a></li>
+        <li><a href="#testimonials" tabindex="0">Testimonials</a></li>
+        <li><a href="#contact" tabindex="0">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="container" tabindex="-1">
+
+  <section id="about" aria-labelledby="about-heading" tabindex="0">
+    <h2 id="about-heading">About Me</h2>
+    <div class="about-flex">
+      <img src="my-one.jpg" alt="Photograph of Lakshmi Siva Ganesh, Creator" class="profile-photo" width="180" height="180" onerror="this.onerror=null;this.src='https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/bb840837-053a-458b-a596-e5c7b8d72318.png';" />
+      <div class="about-text">
+        <h3>Founder & Creator</h3>
+        <p>Hello! I'm Lakshmi Siva Ganesh, a passionate developer and creator specializing in interactive web experiences. I craft elegant, modern websites tailored to deliver engaging online presences. Welcome to my portfolio and interactive resume!</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="resume" aria-labelledby="resume-heading" tabindex="0">
+    <h2 id="resume-heading">Resume / CV</h2>
+    <div class="resume-section" role="region" aria-live="polite">
+      <div>
+        <h3>Work Experience</h3>
+        <ul class="resume-list">
+          <li>
+            <strong>Tech Solutions Inc. - Web Developer (2021-Present)</strong>
+            <ul>
+              <li>Developed dynamic user interfaces using React and TypeScript.</li>
+              <li>Collaborated on API integration and performance optimization.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Creative Web Studio - Junior Developer (2019-2021)</strong>
+            <ul>
+              <li>Built responsive websites for small to medium size clients.</li>
+              <li>Assisted in design system implementation and documentation.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3>Education</h3>
+        <ul class="resume-list">
+          <li><strong>Bachelor of Computer science and engineering</strong>KALASALIGAM INSTITUTE OF RESEARCH AND EDUCATION</li>
+          <li>Graduated with Honors and Dean's List recognition.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" aria-labelledby="skills-heading" tabindex="0">
+    <h2 id="skills-heading">Skills</h2>
+    <ul class="skills-list" role="list" aria-label="Technical skills">
+      <li>HTML</li>
+      <li>CSS</li>
+      <li>JavaScript (ES6+)</li>
+      <li>React.js</li>
+      <li>TypeScript</li>
+      <li>Python</li>
+      <li>SQL</li>
+      <li>web development</li>
+      <li>MS OFFICE</li>
+      <li>MS excel</li>
+    </ul>
+  </section>
+
+  <section id="projects" aria-labelledby="projects-heading" tabindex="0">
+    <h2 id="projects-heading">Projects</h2>
+    <ul class="projects-list" role="list">
+      <li class="project-card" tabindex="0">
+        <h3 class="project-title">Interactive Portfolio Website</h3>
+        <p class="project-description">A fully responsive portfolio website with modern design and smooth animations built with React and CSS3.</p>
+        <a href="https://github.com/Ganeshmuna" class="project-link" target="_blank" rel="noopener noreferrer">View on GitHub
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 3v2h3.6l-4.3 4.3 1.4 1.4 4.3-4.3v3.6h2V3z"/><path d="M20 20H4V4h9V2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-9h-2v9z"/></svg>
+        </a>
+      </li>
+      <li class="project-card" tabindex="0">
+        <h3 class="project-title">Data Visualization Dashboard</h3>
+        <p class="project-description">An interactive dashboard for analyzing datasets with charts and filters, built using D3.js and Vue.js.</p>
+        <a href="https://github.com/Ganeshmuna/VS-CODES" class="project-link" target="_blank" rel="noopener noreferrer">View on GitHub
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 3v2h3.6l-4.3 4.3 1.4 1.4 4.3-4.3v3.6h2V3z"/><path d="M20 20H4V4h9V2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-9h-2v9z"/></svg>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section id="certifications" aria-labelledby="certifications-heading" tabindex="0">
+    <h2 id="certifications-heading">Certifications</h2>
+    <ul class="certifications-list" role="list">
+      <li>Certified Web Developer - FreeCodeCamp (2025)</li>
+      <li>Google Analytics Certified (2025)</li>
+      <li>Advanced JavaScript Specialist - Udemy (2025)</li>
+      <a herf="www.linkedin.com/in/lakshmi-siva-ganesh-munaga-55814b2b1" class="project-link" target="_blank" rel="noopener noreferrer">View on LinkedIn</a>
+    </ul>
+  </section>
+
+  <section id="testimonials" aria-labelledby="testimonials-heading" tabindex="0">
+    <h2 id="testimonials-heading">Testimonials</h2>
+    <div class="testimonials-list" role="list">
+      <blockquote class="testimonial" tabindex="0">
+        <p>Lakshmi.siva ganesh is an incredibly talented developer with a keen eye for detail and a passion for clean, accessible design.</p>
+        <footer class="testimonial-footer">- Sarah Johnson, Project Manager at Tech Solutions Inc.</footer>
+      </blockquote>
+      <blockquote class="testimonial" tabindex="0">
+        <p>From concept to launch, Lakshmi.siva ganesh handled our website project professionally and delivered beyond expectations.</p>
+        <footer class="testimonial-footer">- Mike Lee, Founder of Creative Web Studio</footer>
+      </blockquote>
+    </div>
+  </section>
+
+  <section id="contact" aria-labelledby="contact-heading" tabindex="0">
+    <h2 id="contact-heading">Contact Me</h2>
+    <form id="contact-form" aria-label="Contact form" novalidate>
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" autocomplete="name" required aria-required="true" />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" autocomplete="email" required aria-required="true" />
+
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="5" required aria-required="true"></textarea>
+
+      <button type="submit">Send Message</button>
+      <p aria-live="polite" id="form-message" style="margin-top:1rem;"></p>
+    </form>
+  </section>
+
+</main>
+
+<footer>
+  <p>Connect with me on 
+    <a href="https://linkedin.com/in/lakshmi-siva-ganesh-munaga-55814b2b1" target="_blank" rel="noopener noreferrer">LinkedIn</a> , 
+    <a href="https://github.com/Ganeshmuna" target="_blank" rel="noopener noreferrer">GitHub</a> and 
+    <a href="hhttps://mail.google.com/mail/u/1/#sent?compose=new" target="_blank" rel="noopener noreferrer">Gmail</a> 
+  </p>
+  <p>© 2024 Lakshmi Siva Ganesh</p>
+</footer>
+
+<script>
+  // Responsive mobile navigation toggle
+  const menuToggle = document.querySelector('.menu-toggle');
+  const navMenu = document.getElementById('nav-menu');
+
+  menuToggle.addEventListener('click', () => {
+    const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+    menuToggle.setAttribute('aria-expanded', !expanded);
+    navMenu.classList.toggle('show');
+  });
+
+  // Smooth scrolling for internal links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(anchor.getAttribute('href'));
+      if(target) {
+        target.focus();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  // Simple contact form submission simulation
+  const form = document.getElementById('contact-form');
+  const formMessage = document.getElementById('form-message');
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+
+    // Basic validation
+    if(!form.name.value.trim() || !form.email.value.trim() || !form.message.value.trim()) {
+      formMessage.textContent = 'Please fill in all fields.';
+      formMessage.style.color = '#e63946'; // Red
+      return;
+    }
+
+    formMessage.textContent = 'Sending message...';
+    formMessage.style.color = '#00d8ff'; // Accent color
+
+    // Simulate async form submission
+    setTimeout(() => {
+      formMessage.textContent = 'Thank you for contacting me! I will get back to you soon.';
+      formMessage.style.color = '#6c63ff'; // Primary color
+      form.reset();
+    }, 1400);
+  });
+</script>
+</body>
+</html>
+

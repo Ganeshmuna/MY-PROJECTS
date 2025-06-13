@@ -1,0 +1,980 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kids Games Hub - More Fun & Funny Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; 
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #88d3ce 0%, #6e45e2 100%);
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background-color: #4a3aff;
+    color: #fff;
+    padding: 16px 24px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.8rem;
+    user-select: none;
+  }
+  nav {
+    background: #3629a7;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 12px 0;
+    flex-wrap: wrap;
+  }
+  nav button {
+    background: transparent;
+    border: none;
+    color: #cbd5ff;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  nav button:hover,
+  nav button[aria-selected="true"] {
+    background-color: #7f78e7;
+    color: white;
+    outline: none;
+  }
+  main {
+    flex-grow: 1;
+    max-width: 800px;
+    margin: 24px auto 48px;
+    padding: 0 16px;
+    background: #ffffffcc;
+    border-radius: 24px;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
+  }
+  section.game {
+    display: none;
+    padding: 24px;
+  }
+  section.game.active {
+    display: block;
+  }
+  footer {
+    background: #3629a7;
+    color: #cbd5ff;
+    text-align: center;
+    font-size: 0.9rem;
+    padding: 12px 24px;
+  }
+  /* Common reusable button */
+  .btn {
+    background-color: #4a3aff;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1rem;
+  }
+  .btn:hover,
+  .btn:focus {
+    background-color: #3629a7;
+    outline: none;
+  }
+  /* Memory Match Styles */
+  #memory-game .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  #memory-game .card {
+    background-color: #7f78e7;
+    border-radius: 16px;
+    aspect-ratio: 1 / 1;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 12px rgb(0 0 0 / 0.1);
+    perspective: 600px;
+  }
+  #memory-game .card-inner {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+  }
+  #memory-game .card.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+  #memory-game .card-front, #memory-game .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    color: white;
+  }
+  #memory-game .card-front {
+    background-color: #4a3aff;
+    transform: rotateY(180deg);
+  }
+  #memory-game .card-back {
+    background-color: #857aff;
+  }
+  #memory-game .status {
+    margin: 18px 0 0 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  /* Simon Says Styles */
+  #simon-game {
+    text-align: center;
+    user-select: none;
+  }
+  #simon-game .color-buttons {
+    margin: 30px 0 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #simon-game .color-btn {
+    background-color: gray;
+    border-radius: 24px;
+    padding: 24px 0;
+    font-weight: 700;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: white;
+    box-shadow: 0 0 12px rgba(0,0,0,0.2);
+    user-select: none;
+    transition: filter 0.3s ease;
+  }
+  #simon-game .color-btn.red { background-color: #e03c3c; }
+  #simon-game .color-btn.blue { background-color: #1652f0; }
+  #simon-game .color-btn.green { background-color: #02c39a; }
+  #simon-game .color-btn.yellow { background-color: #ffec3d; color: #333; }
+  #simon-game .color-btn.active {
+    filter: brightness(1.7);
+    box-shadow: 0 0 16px #fff;
+  }
+  #simon-game .status {
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+  /* Click The Shape Styles */
+  #click-shape-game {
+    text-align: center;
+  }
+  #click-shape-game #shape-container {
+    margin: 20px auto;
+    width: 300px;
+    height: 300px;
+    position: relative;
+    border-radius: 20px;
+    background-color: #f0f0f0;
+    box-shadow: 0 0 14px rgba(0,0,0,0.1);
+  }
+  #click-shape-game .shape {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.3s ease;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+  }
+  #click-shape-game .score {
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-top: 20px;
+  }
+  /* Coloring Fun Styles */
+  #coloring-game {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  #coloring-game canvas {
+    border: 2px solid #4a3aff;
+    border-radius: 16px;
+    touch-action: none;
+    cursor: crosshair;
+  }
+  #coloring-game .controls {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  #coloring-game button.color-btn {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+  #coloring-game button.color-btn.selected {
+    border-color: #4a3aff;
+  }
+  #coloring-game button.clear-btn {
+    padding: 8px 16px;
+    border-radius: 16px;
+    font-weight: 700;
+    background-color: #4a3aff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #coloring-game button.clear-btn:hover,
+  #coloring-game button.clear-btn:focus {
+    background-color: #3629a7;
+    outline: none;
+  }
+  /* Whack-a-Mole Game Styles */
+  #whack-mole-game {
+    text-align: center;
+  }
+  #whack-mole-game #mole-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 20px;
+    justify-content: center;
+    margin: 20px auto;
+  }
+  .mole-hole {
+    width: 100px;
+    height: 100px;
+    background: #8ECCFF;
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    box-shadow: inset 0 8px 0 #5381E7;
+  }
+  .mole {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: brown;
+    top: 10px;
+    left: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    user-select: none;
+    animation: bounce 0.3s ease;
+  }
+  .mole.active {
+    display: flex;
+    animation: bounce 0.3s ease forwards;
+  }
+  @keyframes bounce {
+    0% {transform: translateY(20px);}
+    50% {transform: translateY(-10px);}
+    100% {transform: translateY(0);}
+  }
+  #whack-mole-game .score-display {
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-top: 12px;
+  }
+  /* Balloon Pop Game Styling */
+  #balloon-pop-game {
+    text-align: center;
+    overflow: hidden;
+    user-select: none;
+  }
+  #balloon-pop-game #balloon-container {
+    position: relative;
+    margin: 20px auto;
+    width: 320px;
+    height: 400px;
+    background: linear-gradient(to top, #ccf5ff 0%, #fce5ff 100%);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 0 25px rgba(0,0,0,0.15);
+  }
+  .balloon {
+    position: absolute;
+    bottom: -100px;
+    width: 48px;
+    height: 64px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    cursor: pointer;
+    box-shadow: inset 0 4px 8px rgba(255 255 255 / 0.5);
+    filter: drop-shadow(0 4px 2px rgba(0,0,0,0.1));
+    user-select: none;
+    transition: transform 0.2s ease;
+  }
+  .balloon.red { background: #ff4e4e; }
+  .balloon.blue { background: #4287f5; }
+  .balloon.green { background: #4ef57d; }
+  .balloon.yellow { background: #ffed4a; }
+  .balloon.pop {
+    transform: scale(1.8);
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+  }
+  #balloon-pop-game .score-display {
+    margin-top: 14px;
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+  /* Responsive */
+  @media (max-width: 480px) {
+    nav {
+      gap: 12px;
+    }
+    main {
+      margin: 16px auto 32px;
+      max-width: 95%;
+      border-radius: 16px;
+    }
+    header {
+      font-size: 1.5rem;
+      padding: 12px 16px;
+    }
+    nav button {
+      font-size: 0.9rem;
+      padding: 8px 12px;
+    }
+    #whack-mole-game #mole-grid {
+      grid-template-columns: repeat(3, 80px);
+      grid-gap: 16px;
+    }
+    .mole-hole {
+      width: 80px;
+      height: 80px;
+    }
+    .mole {
+      width: 60px;
+      height: 60px;
+      font-size: 30px;
+      top: 10px; left: 10px;
+    }
+    #balloon-pop-game #balloon-container {
+      width: 280px;
+      height: 350px;
+    }
+    .balloon {
+      width: 40px;
+      height: 54px;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  Kids Games Hub - More Fun & Funny Games
+</header>
+<nav role="navigation" aria-label="Select a game to play">
+  <button aria-selected="true" role="tab" aria-controls="memory-game" id="tab-memory">
+    <span class="material-icons" aria-hidden="true">memory</span> Memory Match
+  </button>
+  <button aria-selected="false" role="tab" aria-controls="simon-game" id="tab-simon">
+    <span class="material-icons" aria-hidden="true">touch_app</span> Simon Says
+  </button>
+  <button aria-selected="false" role="tab" aria-controls="click-shape-game" id="tab-clickshape">
+    <span class="material-icons" aria-hidden="true">games</span> Click The Shape
+  </button>
+  <button aria-selected="false" role="tab" aria-controls="coloring-game" id="tab-coloring">
+    <span class="material-icons" aria-hidden="true">brush</span> Coloring Fun
+  </button>
+  <button aria-selected="false" role="tab" aria-controls="whack-mole-game" id="tab-whackmole">
+    <span class="material-icons" aria-hidden="true">sports_kabaddi</span> Whack A Mole
+  </button>
+  <button aria-selected="false" role="tab" aria-controls="balloon-pop-game" id="tab-balloonpop">
+    <span class="material-icons" aria-hidden="true">balloon</span> Balloon Pop
+  </button>
+</nav>
+
+<main>
+
+  <!-- MEMORY MATCH GAME -->
+  <section id="memory-game" class="game active" role="tabpanel" aria-labelledby="tab-memory">
+    <h2>Memory Card Matching Game</h2>
+    <div class="grid" aria-live="polite" aria-label="Memory cards grid"></div>
+    <div class="status" aria-live="polite" aria-atomic="true"></div>
+    <button class="btn restart-btn" aria-label="Restart Memory Game">Restart</button>
+  </section>
+
+  <!-- SIMON SAYS GAME -->
+  <section id="simon-game" class="game" role="tabpanel" aria-labelledby="tab-simon">
+    <h2>Simon Says</h2>
+    <div class="status" aria-live="polite" aria-atomic="true">Press Start to Begin</div>
+    <div class="color-buttons" aria-label="Simon color buttons">
+      <button class="color-btn red" data-color="red" aria-label="Red Button" disabled></button>
+      <button class="color-btn blue" data-color="blue" aria-label="Blue Button" disabled></button>
+      <button class="color-btn green" data-color="green" aria-label="Green Button" disabled></button>
+      <button class="color-btn yellow" data-color="yellow" aria-label="Yellow Button" disabled></button>
+    </div>
+    <button class="btn" id="simon-start-btn" aria-label="Start Simon Game">Start</button>
+  </section>
+
+  <!-- CLICK THE SHAPE GAME -->
+  <section id="click-shape-game" class="game" role="tabpanel" aria-labelledby="tab-clickshape">
+    <h2>Click The Shape</h2>
+    <div id="shape-container" tabindex="0" aria-label="Shape clicking game area"></div>
+    <div class="score" aria-live="polite" aria-atomic="true">Score: 0</div>
+    <button class="btn restart-btn" aria-label="Restart Click The Shape Game">Restart</button>
+  </section>
+
+  <!-- COLORING GAME -->
+  <section id="coloring-game" class="game" role="tabpanel" aria-labelledby="tab-coloring">
+    <h2>Coloring Fun</h2>
+    <canvas id="coloring-canvas" width="600" height="400" aria-label="Coloring canvas"></canvas>
+    <div class="controls" role="toolbar" aria-label="Color and clear controls">
+      <button class="color-btn" style="background:#e03c3c;" data-color="#e03c3c" aria-label="Red color"></button>
+      <button class="color-btn" style="background:#1652f0;" data-color="#1652f0" aria-label="Blue color"></button>
+      <button class="color-btn" style="background:#02c39a;" data-color="#02c39a" aria-label="Green color"></button>
+      <button class="color-btn" style="background:#ffec3d;" data-color="#ffec3d" aria-label="Yellow color"></button>
+      <button class="clear-btn" aria-label="Clear drawing canvas">Clear</button>
+    </div>
+  </section>
+
+  <!-- WHACK-A-MOLE GAME -->
+  <section id="whack-mole-game" class="game" role="tabpanel" aria-labelledby="tab-whackmole">
+    <h2>Whack A Mole</h2>
+    <div id="mole-grid" aria-label="Whack a mole grid"></div>
+    <div class="score-display" aria-live="polite" aria-atomic="true">Score: 0</div>
+    <button class="btn restart-btn" aria-label="Restart Whack A Mole Game">Restart</button>
+  </section>
+
+  <!-- BALLOON POP GAME -->
+  <section id="balloon-pop-game" class="game" role="tabpanel" aria-labelledby="tab-balloonpop">
+    <h2>Balloon Pop</h2>
+    <div id="balloon-container" aria-label="Balloon popping game"></div>
+    <div class="score-display" aria-live="polite" aria-atomic="true">Score: 0</div>
+    <button class="btn restart-btn" aria-label="Restart Balloon Pop Game">Restart</button>
+  </section>
+
+</main>
+
+<footer>
+  &copy; 2024 Kids Games Hub - All Rights Reserved
+</footer>
+
+<script>
+(() => {
+  /*** Navigation ***/
+  const tabs = document.querySelectorAll('nav button');
+  const games = document.querySelectorAll('section.game');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+      tab.setAttribute('aria-selected', 'true');
+      const target = tab.getAttribute('aria-controls');
+      games.forEach(g => {
+        if (g.id === target) {
+          g.classList.add('active');
+          g.setAttribute('tabindex', '-1'); 
+          g.focus();
+        } else {
+          g.classList.remove('active');
+          g.removeAttribute('tabindex');
+        }
+      });
+    });
+  });
+
+  /*** MEMORY MATCH GAME ***/
+  const memoryGame = (() => {
+    const grid = document.querySelector('#memory-game .grid');
+    const status = document.querySelector('#memory-game .status');
+    const restartBtn = document.querySelector('#memory-game .restart-btn');
+    const symbols = ['🐶','🐱','🐻','🐼','🐸','🦄','🐷','🐔'];
+    let cards = [], flipped = [], matchedCount = 0, processing = false;
+
+    function shuffle(array) {
+      for(let i=array.length-1; i>0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+    function createCard(symbol) {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', 'Memory card');
+      card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-front">${symbol}</div>
+          <div class="card-back"></div>
+        </div>
+      `;
+      card.dataset.symbol = symbol;
+      card.addEventListener('click', () => {
+        if(processing || card.classList.contains('flipped')) return;
+        flipCard(card);
+      });
+      card.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+      return card;
+    }
+    function flipCard(card) {
+      if(flipped.length === 2) return;
+      card.classList.add('flipped');
+      flipped.push(card);
+      if(flipped.length === 2){
+        checkMatch();
+      }
+    }
+    function checkMatch() {
+      processing = true;
+      const [first, second] = flipped;
+      if(first.dataset.symbol === second.dataset.symbol){
+        matchedCount += 2;
+        status.textContent = `Great! Matched ${matchedCount/2} pair(s).`;
+        flipped = [];
+        processing = false;
+        if(matchedCount === cards.length){
+          status.textContent = `Congratulations! You matched all pairs! 🎉`;
+        }
+      } else {
+        status.textContent = `Try again!`;
+        setTimeout(() => {
+          first.classList.remove('flipped');
+          second.classList.remove('flipped');
+          flipped = [];
+          processing = false;
+          status.textContent = '';
+        }, 1000);
+      }
+    }
+    function setupGame() {
+      grid.innerHTML = '';
+      const doubleSymbols = shuffle([...symbols, ...symbols]);
+      cards = doubleSymbols.map(sym => createCard(sym));
+      cards.forEach(card => grid.appendChild(card));
+      matchedCount = 0;
+      flipped = [];
+      processing = false;
+      status.textContent = '';
+    }
+    restartBtn.addEventListener('click', setupGame);
+    return { setupGame };
+  })();
+  memoryGame.setupGame();
+
+  /*** SIMON GAME ***/
+  const simonGame = (() => {
+    const status = document.querySelector('#simon-game .status');
+    const btnStart = document.getElementById('simon-start-btn');
+    const colorButtons = document.querySelectorAll('#simon-game .color-btn');
+    let sequence = [], playerIndex = 0, waitingForInput = false;
+    const colors = ['red','blue','green','yellow'];
+
+    function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+    async function playSequence(){
+      waitingForInput = false;
+      for(let color of sequence){
+        const btn = getButton(color);
+        btn.classList.add('active');
+        await sleep(600);
+        btn.classList.remove('active');
+        await sleep(200);
+      }
+      waitingForInput = true;
+      status.textContent = 'Your turn! Repeat the sequence.';
+    }
+    function getButton(color){
+      return document.querySelector(`#simon-game .color-btn.${color}`);
+    }
+    function addRandomColor(){
+      const idx = Math.floor(Math.random()*colors.length);
+      sequence.push(colors[idx]);
+    }
+    async function startGame(){
+      sequence = []; playerIndex = 0;
+      btnStart.disabled = true;
+      addRandomColor();
+      status.textContent = 'Watch the sequence!';
+      enableButtons(false);
+      await playSequence();
+      enableButtons(true);
+    }
+    function enableButtons(enabled){
+      colorButtons.forEach(btn => btn.disabled = !enabled);
+    }
+    async function playerClick(color){
+      if(!waitingForInput) return;
+      if(color === sequence[playerIndex]){
+        playerIndex++;
+        if(playerIndex === sequence.length){
+          enableButtons(false);
+          playerIndex = 0;
+          status.textContent = 'Good job! Next round!';
+          await sleep(800);
+          addRandomColor();
+          await playSequence();
+          enableButtons(true);
+        }
+      } else {
+        status.textContent = 'Oops! That was wrong. Press start to try again.';
+        enableButtons(false);
+        btnStart.disabled = false;
+        waitingForInput = false;
+      }
+    }
+    btnStart.addEventListener('click', startGame);
+    colorButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const col = btn.dataset.color;
+        playerClick(col);
+      });
+    });
+    enableButtons(false);
+  })();
+
+  /*** CLICK THE SHAPE GAME ***/
+  const clickShapeGame = (() => {
+    const container = document.getElementById('shape-container');
+    const scoreEl = document.querySelector('#click-shape-game .score');
+    const restartBtn = document.querySelector('#click-shape-game .restart-btn');
+    let score = 0;
+    let activeShape = null;
+    const shapes = ['circle', 'square', 'triangle', 'star'];
+
+    function createShape() {
+      if(activeShape){
+        activeShape.el.remove();
+      }
+      const shapeType = shapes[Math.floor(Math.random()*shapes.length)];
+      const shape = document.createElement('div');
+      shape.classList.add('shape');
+      shape.style.backgroundColor = getRandomColor();
+      shape.style.borderRadius = shapeType === 'circle' ? '50%' : '6px';
+      if(shapeType === 'triangle'){
+        shape.style.width = '0';
+        shape.style.height = '0';
+        shape.style.borderLeft = '30px solid transparent';
+        shape.style.borderRight = '30px solid transparent';
+        shape.style.borderBottom = `60px solid ${getRandomColor()}`;
+        shape.style.backgroundColor = 'transparent';
+        shape.style.borderRadius = '0';
+      } else if(shapeType === 'star'){
+        shape.style.backgroundColor = 'transparent';
+        shape.style.width = '0';
+        shape.style.height = '0';
+        shape.style.borderLeft = '30px solid transparent';
+        shape.style.borderRight = '30px solid transparent';
+        shape.style.position = 'relative';
+        shape.style.clipPath = `polygon(
+          50% 0%,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          79% 91%,
+          50% 70%,
+          21% 91%,
+          32% 57%,
+          2% 35%,
+          39% 35%
+        )`;
+        shape.style.backgroundColor = getRandomColor();
+      }
+      const maxX = container.clientWidth - 60;
+      const maxY = container.clientHeight - 60;
+      const posX = Math.floor(Math.random() * maxX);
+      const posY = Math.floor(Math.random() * maxY);
+      shape.style.position = 'absolute';
+      shape.style.left = posX + 'px';
+      shape.style.top = posY + 'px';
+      shape.addEventListener('click', onClickShape);
+      container.appendChild(shape);
+      activeShape = {el: shape, type: shapeType};
+    }
+    function onClickShape() {
+      score++;
+      scoreEl.textContent = `Score: ${score}`;
+      createShape();
+    }
+    function getRandomColor() {
+      const colors = ['#e03c3c','#1652f0','#02c39a','#ffec3d','#fca311','#8b5cf6'];
+      return colors[Math.floor(Math.random()*colors.length)];
+    }
+    function resetGame() {
+      score = 0;
+      scoreEl.textContent = `Score: ${score}`;
+      createShape();
+    }
+    restartBtn.addEventListener('click', resetGame);
+    resetGame();
+  })();
+
+  /*** COLORING GAME ***/
+  const coloringGame = (() => {
+    const canvas = document.getElementById('coloring-canvas');
+    const ctx = canvas.getContext('2d');
+    const colorButtons = document.querySelectorAll('#coloring-game button.color-btn');
+    const clearBtn = document.querySelector('#coloring-game .clear-btn');
+    let drawing = false, currentColor = '#e03c3c';
+
+    function setupCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.clientWidth * dpr;
+      canvas.height = canvas.clientHeight * dpr;
+      ctx.scale(dpr, dpr);
+      clearCanvas();
+    }
+    function clearCanvas() {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+    }
+    function startDraw(e) {
+      drawing = true;
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      const {x, y} = getPos(e);
+      ctx.moveTo(x, y);
+      e.preventDefault();
+    }
+    function draw(e) {
+      if(!drawing) return;
+      const {x,y} = getPos(e);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      e.preventDefault();
+    }
+    function endDraw(e) {
+      if(drawing) {
+        ctx.closePath();
+        drawing = false;
+      }
+      e.preventDefault();
+    }
+    function getPos(e){
+      const rect = canvas.getBoundingClientRect();
+      let clientX, clientY;
+      if(e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top,
+      };
+    }
+    colorButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        colorButtons.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        currentColor = btn.dataset.color;
+      });
+    });
+    clearBtn.addEventListener('click', () => {
+      clearCanvas();
+    });
+    colorButtons[0].classList.add('selected');
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('touchstart', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('touchend', endDraw);
+    canvas.addEventListener('touchcancel', endDraw);
+    setupCanvas();
+    window.addEventListener('resize', setupCanvas);
+  })();
+
+  /*** WHACK A MOLE GAME ***/
+  const whackMoleGame = (() => {
+    const moleGrid = document.getElementById('mole-grid');
+    const scoreDisplay = document.querySelector('#whack-mole-game .score-display');
+    const restartBtn = document.querySelector('#whack-mole-game .restart-btn');
+    const holesCount = 9;
+    let score = 0;
+    let moles = [];
+    let activeMoleIndex = -1;
+    let moleTimer = null;
+
+    // Initialize grid holes
+    function createHoles() {
+      moleGrid.innerHTML = '';
+      moles = [];
+      for(let i = 0; i < holesCount; i++) {
+        const hole = document.createElement('div');
+        hole.classList.add('mole-hole');
+        hole.setAttribute('tabindex', '0');
+        hole.setAttribute('role', 'button');
+        hole.setAttribute('aria-label', 'Mole hole');
+        
+        const mole = document.createElement('div');
+        mole.classList.add('mole');
+        mole.textContent = '🐹';
+        hole.appendChild(mole);
+        mole.addEventListener('click', () => {
+          if(i === activeMoleIndex) {
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+            deactivateMole();
+          }
+        });
+        mole.addEventListener('keydown', e => {
+          if(e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            mole.click();
+          }
+        });
+
+        moleGrid.appendChild(hole);
+        moles.push(mole);
+      }
+    }
+    function activateRandomMole() {
+      deactivateMole();
+      let nextIndex;
+      do {
+        nextIndex = Math.floor(Math.random() * holesCount);
+      } while(nextIndex === activeMoleIndex);
+      activeMoleIndex = nextIndex;
+      moles[activeMoleIndex].classList.add('active');
+    }
+    function deactivateMole() {
+      if(activeMoleIndex >= 0) {
+        moles[activeMoleIndex].classList.remove('active');
+        activeMoleIndex = -1;
+      }
+    }
+    function startGame() {
+      score = 0;
+      scoreDisplay.textContent = `Score: ${score}`;
+      if(moleTimer) clearInterval(moleTimer);
+      activateRandomMole();
+      moleTimer = setInterval(() => {
+        activateRandomMole();
+      }, 1200); // mole changes every 1.2 seconds
+    }
+    restartBtn.addEventListener('click', startGame);
+    // Start initially
+    createHoles();
+    startGame();
+
+    return {};
+  })();
+
+  /*** BALLOON POP GAME ***/
+  const balloonPopGame = (() => {
+    const container = document.getElementById('balloon-container');
+    const scoreDisplay = document.querySelector('#balloon-pop-game .score-display');
+    const restartBtn = document.querySelector('#balloon-pop-game .restart-btn');
+    const balloonColors = ['red','blue','green','yellow'];
+    let score = 0;
+    let balloons = [];
+    let animationFrameId = null;
+
+    // Create and animate balloons upwards
+    function createBalloon() {
+      const balloon = document.createElement('div');
+      const color = balloonColors[Math.floor(Math.random()*balloonColors.length)];
+      balloon.className = `balloon ${color}`;
+      balloon.style.left = Math.random() * (container.clientWidth - 48) + 'px';
+      balloon.style.bottom = '-100px';
+      balloon.dataset.speed = 0.5 + Math.random() * 1;
+      container.appendChild(balloon);
+      balloon.addEventListener('click', () => popBalloon(balloon));
+      balloons.push(balloon);
+    }
+    function popBalloon(balloon) {
+      if(balloon.classList.contains('pop')) return;
+      score++;
+      scoreDisplay.textContent = `Score: ${score}`;
+      balloon.classList.add('pop');
+      setTimeout(() => {
+        balloon.remove();
+        balloons = balloons.filter(b => b !== balloon);
+      }, 400);
+    }
+    function animateBalloons() {
+      for(let i=0; i<balloons.length; i++) {
+        const b = balloons[i];
+        let bottom = parseFloat(b.style.bottom);
+        if(isNaN(bottom)) bottom = -100;
+        bottom += b.dataset.speed*3; // speed multiplier
+        if(bottom > container.clientHeight) {
+          b.remove();
+          balloons.splice(i,1);
+          i--;
+          continue;
+        }
+        b.style.bottom = bottom +'px';
+      }
+      animationFrameId = requestAnimationFrame(animateBalloons);
+    }
+    function startGame() {
+      clearBalloons();
+      score = 0;
+      scoreDisplay.textContent = `Score: ${score}`;
+      // Create initial balloons
+      for(let i=0; i<6; i++) {
+        setTimeout(createBalloon, i*500);
+      }
+      if(animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(animateBalloons);
+      // Continuously create random balloons
+      balloonCreationInterval = setInterval(createBalloon, 1500);
+    }
+    function clearBalloons() {
+      balloons.forEach(b => b.remove());
+      balloons = [];
+      if(balloonCreationInterval) clearInterval(balloonCreationInterval);
+    }
+    restartBtn.addEventListener('click', startGame);
+
+    // Start initially
+    let balloonCreationInterval = null;
+    startGame();
+
+    return {};
+  })();
+
+})();
+</script>
+
+</body>
+</html>

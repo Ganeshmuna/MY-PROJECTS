@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modern Responsive Calculator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    :root {
+      --clr-bg: #121212;
+      --clr-display-bg: #1e1e1e;
+      --clr-text: #e0e0e0;
+      --clr-accent: #4ade80; /* emerald green */
+      --clr-accent-hover: #22c55e;
+      --clr-button-bg: #2c2c2c;
+      --clr-button-hover: #3a3a3a;
+      --clr-operator-bg: #373737;
+      --clr-operator-hover: #4a4a4a;
+      --radius: 12px;
+      --spacing: 16px;
+      --font-family: 'Inter', sans-serif;
+      --transition-duration: 0.3s;
+      --button-size: 64px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--clr-bg);
+      color: var(--clr-text);
+      font-family: var(--font-family);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: var(--spacing);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .calculator {
+      background: #181818;
+      border-radius: var(--radius);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.9);
+      width: 100%;
+      max-width: 400px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--spacing);
+      padding: var(--spacing);
+    }
+
+    .display {
+      background: var(--clr-display-bg);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--clr-text);
+      text-align: right;
+      user-select: none;
+      min-height: 64px;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
+      box-shadow: inset 0 4px 8px rgba(255 255 255 / 0.1);
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing);
+    }
+
+    button {
+      background: var(--clr-button-bg);
+      border: none;
+      border-radius: var(--radius);
+      color: var(--clr-text);
+      font-size: 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color var(--transition-duration) ease, transform 0.15s ease;
+      height: var(--button-size);
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--clr-accent);
+      outline-offset: 2px;
+    }
+
+    button:hover,
+    button:focus {
+      background-color: var(--clr-button-hover);
+      transform: scale(1.05);
+    }
+
+    .button-operator {
+      background: var(--clr-operator-bg);
+    }
+
+    .button-operator:hover,
+    .button-operator:focus {
+      background: var(--clr-operator-hover);
+      color: var(--clr-accent);
+    }
+
+    .button-equal {
+      background: var(--clr-accent);
+      color: #121212;
+      grid-column: span 2;
+    }
+
+    .button-equal:hover,
+    .button-equal:focus {
+      background: var(--clr-accent-hover);
+      color: #e0e0e0;
+    }
+
+    .button-zero {
+      grid-column: span 2;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      :root {
+        --button-size: 56px;
+        --spacing: 12px;
+      }
+      .display {
+        font-size: 1.5rem;
+        padding: 16px 20px;
+        min-height: 56px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+        animation-duration: 0s !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="calculator" role="application" aria-label="Calculator">
+    <output class="display" id="display" aria-live="polite" aria-atomic="true" role="textbox" aria-readonly="true">0</output>
+    <div class="buttons">
+      <button type="button" class="button-operator" aria-label="Clear" id="clear">C</button>
+      <button type="button" class="button-operator" aria-label="Backspace" id="backspace">⌫</button>
+      <button type="button" class="button-operator" aria-label="Percent" id="percent">%</button>
+      <button type="button" class="button-operator" aria-label="Divide" data-op="/">÷</button>
+
+      <button type="button" aria-label="7" data-num="7">7</button>
+      <button type="button" aria-label="8" data-num="8">8</button>
+      <button type="button" aria-label="9" data-num="9">9</button>
+      <button type="button" class="button-operator" aria-label="Multiply" data-op="*">×</button>
+
+      <button type="button" aria-label="4" data-num="4">4</button>
+      <button type="button" aria-label="5" data-num="5">5</button>
+      <button type="button" aria-label="6" data-num="6">6</button>
+      <button type="button" class="button-operator" aria-label="Subtract" data-op="-">−</button>
+
+      <button type="button" aria-label="1" data-num="1">1</button>
+      <button type="button" aria-label="2" data-num="2">2</button>
+      <button type="button" aria-label="3" data-num="3">3</button>
+      <button type="button" class="button-operator" aria-label="Add" data-op="+">+</button>
+
+      <button type="button" class="button-zero" aria-label="0" data-num="0">0</button>
+      <button type="button" aria-label="Decimal point" id="decimal">.</button>
+      <button type="button" class="button-equal" aria-label="Equals" id="equals">=</button>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const display = document.getElementById('display');
+      const buttons = document.querySelectorAll('.buttons button');
+      let currentInput = '0';
+      let resetNext = false;
+
+      // Sanitize and safely evaluate expression
+      function calculate(expr) {
+        try {
+          // Replace percent with division by 100 to handle percent calculations
+          expr = expr.replace(/(\d+)%/g, (match, num) => `(${num}/100)`);
+          // Disallow any characters except digits, operators, decimal and parentheses
+          if (/[^0-9+\-*/%.() ]/.test(expr)) {
+            return 'Error';
+          }
+          // Evaluate safely using Function constructor
+          // eslint-disable-next-line no-new-func
+          const result = Function(`"use strict"; return (${expr})`)();
+          if (result === undefined || result === null || isNaN(result) || !isFinite(result))
+            return 'Error';
+          return +result.toFixed(10); // limit decimal precision to 10 places
+        } catch {
+          return 'Error';
+        }
+      }
+
+      function updateDisplay() {
+        display.textContent = currentInput;
+      }
+
+      function appendInput(value) {
+        if (resetNext) {
+          if (/[\d.]/.test(value)) {
+            currentInput = value;
+          } else {
+            currentInput = '0' + value;
+          }
+          resetNext = false;
+          updateDisplay();
+          return;
+        }
+        if (currentInput === '0' && /[\d]/.test(value)) {
+          currentInput = value;
+        } else {
+          currentInput += value;
+        }
+        updateDisplay();
+      }
+
+      function appendOperator(op) {
+        if (resetNext) {
+          if (currentInput !== 'Error') {
+            resetNext = false;
+          } else {
+            currentInput = '0';
+            resetNext = false;
+          }
+        }
+        if (currentInput === 'Error') {
+          currentInput = '0';
+        }
+        // Prevent two operators in a row
+        if (/[\+\-\*\/]$/.test(currentInput)) {
+          currentInput = currentInput.slice(0, -1) + op;
+        } else {
+          currentInput += op;
+        }
+        updateDisplay();
+      }
+
+      function addDecimal() {
+        if (resetNext) {
+          currentInput = '0.';
+          resetNext = false;
+          updateDisplay();
+          return;
+        }
+        // Only add decimal if last number segment doesn't already have one
+        const segments = currentInput.split(/[\+\-\*\/]/);
+        const lastSegment = segments[segments.length - 1];
+        if (!lastSegment.includes('.')) {
+          currentInput += '.';
+          updateDisplay();
+        }
+      }
+
+      function clearAll() {
+        currentInput = '0';
+        resetNext = false;
+        updateDisplay();
+      }
+
+      function backspace() {
+        if (resetNext) {
+          clearAll();
+          return;
+        }
+        if (currentInput.length === 1) {
+          currentInput = '0';
+        } else {
+          currentInput = currentInput.slice(0, -1);
+          if (/[\+\-\*\/]$/.test(currentInput)) {
+            currentInput = currentInput.slice(0, -1);
+          }
+          if(currentInput === '') currentInput = '0';
+        }
+        updateDisplay();
+      }
+
+      function evaluate() {
+        const result = calculate(currentInput);
+        currentInput = String(result);
+        resetNext = true;
+        updateDisplay();
+      }
+
+      // Button click handler
+      buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+          const num = button.getAttribute('data-num');
+          const op = button.getAttribute('data-op');
+          if (button.id === 'clear') {
+            clearAll();
+          } else if (button.id === 'backspace') {
+            backspace();
+          } else if (button.id === 'decimal') {
+            addDecimal();
+          } else if (button.id === 'equals') {
+            evaluate();
+          } else if (num !== null) {
+            appendInput(num);
+          } else if (op !== null) {
+            appendOperator(op);
+          }
+        });
+      });
+
+      // Keyboard support
+      window.addEventListener('keydown', (event) => {
+        if (event.repeat) return;
+        if ((event.key >= '0' && event.key <= '9') || event.key === '.') {
+          event.preventDefault();
+          if (event.key === '.') {
+            addDecimal();
+          } else {
+            appendInput(event.key);
+          }
+        } else if (['+', '-', '*', '/'].includes(event.key)) {
+          event.preventDefault();
+          appendOperator(event.key);
+        } else if (event.key === 'Enter' || event.key === '=') {
+          event.preventDefault();
+          evaluate();
+        } else if (event.key === 'Backspace') {
+          event.preventDefault();
+          backspace();
+        } else if (event.key.toLowerCase() === 'c') {
+          event.preventDefault();
+          clearAll();
+        } else if (event.key === '%') {
+          event.preventDefault();
+          appendInput('%');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+
+```

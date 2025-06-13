@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>3D Rubik's Cube Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #141e30, #243b55);
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  h1 {
+    margin-bottom: 12px;
+    font-weight: 700;
+    font-size: 2.5rem;
+    user-select: none;
+  }
+
+  /* Cube Container */
+  #cube-container {
+    width: 320px;
+    height: 320px;
+    perspective: 1200px;
+    margin: 24px 0 40px;
+    position: relative;
+  }
+
+  /* The 3D Rubik's Cube */
+  #cube {
+    width: 200px;
+    height: 200px;
+    position: relative;
+    margin: auto;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(-20deg);
+    transition: transform 0.5s ease;
+  }
+
+  /* Each mini cube: 3x3x3 total, but we only render the visible faces for performance */
+  .cubie {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
+    box-shadow: 0 0 7px rgba(0,0,0,0.6);
+    transform-style: preserve-3d;
+  }
+
+  /* Cubie faces */
+  .face {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 2.5px solid #141e30;
+    box-sizing: border-box;
+    border-radius: 8px;
+  }
+
+  /* Sticker style on Face */
+  .sticker {
+    width: 56px;
+    height: 56px;
+    margin: 2px auto;
+    border-radius: 6px;
+    box-shadow: inset 0 0 8px rgb(0 0 0 / 0.3);
+  }
+  
+  /* Individual face placement and colors */
+  .face-front { transform: translateZ(32px); top: 2px; left: 2px; }
+  .face-back { transform: rotateY(180deg) translateZ(32px); top: 2px; left: 2px; }
+  .face-left { transform: rotateY(-90deg) translateZ(32px); top: 2px; left: 2px; }
+  .face-right { transform: rotateY(90deg) translateZ(32px); top: 2px; left: 2px; }
+  .face-top { transform: rotateX(90deg) translateZ(32px); top: 2px; left: 2px; }
+  .face-bottom { transform: rotateX(-90deg) translateZ(32px); top: 2px; left: 2px; }
+
+  /* Rubik's Cube colors */
+  .color-white  { background: #fff; }
+  .color-yellow { background: #ffec3d; }
+  .color-blue   { background: #1652f0; }
+  .color-green  { background: #02c39a; }
+  .color-red    { background: #e03c3c; }
+  .color-orange { background: #fca311; }
+
+  /* Controls container */
+  #controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 360px;
+    gap: 12px;
+  }
+
+  button.control-btn {
+    background: #1c2a48;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 18px;
+    color: #eee;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgb(255 255 255 / 0.1);
+    transition: background-color 0.3s ease;
+    min-width: 52px;
+    text-align: center;
+  }
+
+  button.control-btn:hover,
+  button.control-btn:focus {
+    background-color: #405f96;
+    outline: none;
+  }
+
+  button.control-btn:active {
+    background-color: #2b4979;
+  }
+
+  /* Label for controls */
+  #controls-label {
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Responsive for small devices */
+  @media (max-width: 420px) {
+    #cube-container {
+      width: 280px;
+      height: 280px;
+    }
+    #cube {
+      width: 180px;
+      height: 180px;
+    }
+    .cubie {
+      width: 60px;
+      height: 60px;
+    }
+    .face {
+      width: 56px;
+      height: 56px;
+    }
+    .sticker {
+      width: 52px;
+      height: 52px;
+    }
+  }
+</style>
+</head>
+<body>
+<h1>3D Rubik's Cube Game</h1>
+<div id="cube-container" aria-label="3D Rubik's Cube">
+  <div id="cube" tabindex="0" aria-live="polite" aria-roledescription="interactive Rubik's cube with rotation controls"></div>
+</div>
+
+<div id="controls-label">Turn Layers (Use Keyboard or Buttons)</div>
+<div id="controls" role="group" aria-label="Rubik's Cube layer turn controls">
+  <!-- Buttons for layers and directions -->
+  <button class="control-btn" data-move="U" title="Turn Upper Layer clockwise" aria-label="Turn Upper Layer clockwise">
+    <span class="material-icons" aria-hidden="true">arrow_upward</span> U
+  </button>
+  <button class="control-btn" data-move="U'" title="Turn Upper Layer counter clockwise" aria-label="Turn Upper Layer counter clockwise">
+    <span class="material-icons" aria-hidden="true" style="transform:rotate(180deg)">arrow_upward</span> U'
+  </button>
+  <button class="control-btn" data-move="D" title="Turn Down Layer clockwise" aria-label="Turn Down Layer clockwise">
+    <span class="material-icons" aria-hidden="true">arrow_downward</span> D
+  </button>
+  <button class="control-btn" data-move="D'" title="Turn Down Layer counter clockwise" aria-label="Turn Down Layer counter clockwise">
+    <span class="material-icons" aria-hidden="true" style="transform:rotate(180deg)">arrow_downward</span> D'
+  </button>
+  
+  <button class="control-btn" data-move="L" title="Turn Left Layer clockwise" aria-label="Turn Left Layer clockwise">
+    <span class="material-icons" aria-hidden="true">arrow_back</span> L
+  </button>
+  <button class="control-btn" data-move="L'" title="Turn Left Layer counter clockwise" aria-label="Turn Left Layer counter clockwise">
+    <span class="material-icons" aria-hidden="true" style="transform:rotate(180deg)">arrow_back</span> L'
+  </button>
+  
+  <button class="control-btn" data-move="R" title="Turn Right Layer clockwise" aria-label="Turn Right Layer clockwise">
+    <span class="material-icons" aria-hidden="true">arrow_forward</span> R
+  </button>
+  <button class="control-btn" data-move="R'" title="Turn Right Layer counter clockwise" aria-label="Turn Right Layer counter clockwise">
+    <span class="material-icons" aria-hidden="true" style="transform:rotate(180deg)">arrow_forward</span> R'
+  </button>
+
+  <button class="control-btn" data-move="F" title="Turn Front Layer clockwise" aria-label="Turn Front Layer clockwise">
+    <span class="material-icons" aria-hidden="true">south</span> F
+  </button>
+  <button class="control-btn" data-move="F'" title="Turn Front Layer counter clockwise" aria-label="Turn Front Layer counter clockwise">
+    <span class="material-icons" aria-hidden="true" style="transform:rotate(180deg)">south</span> F'
+  </button>
+
+  <button class="control-btn" data-move="B" title="Turn Back Layer clockwise" aria-label="Turn Back Layer clockwise">
+    <span class="material-icons" aria-hidden="true">north</span> B
+  </button>
+  <button class="control-btn" data-move="B'" title="Turn Back Layer counter clockwise" aria-label="Turn Back Layer counter clockwise">
+    <span class="material-icons" aria-hidden="true" style="transform:rotate(180deg)">north</span> B'
+  </button>
+</div>
+
+<div id="game-buttons" style="margin-top: 30px; display:flex; gap:20px;">
+  <button class="control-btn" id="shuffle-btn" title="Shuffle the cube" aria-label="Shuffle the cube">
+    <span class="material-icons" aria-hidden="true">shuffle</span> Shuffle
+  </button>
+  <button class="control-btn" id="reset-btn" title="Reset the cube" aria-label="Reset the cube">
+    <span class="material-icons" aria-hidden="true">restart_alt</span> Reset
+  </button>
+</div>
+
+<script>
+/* --------------------------
+  3D Rubik's Cube Game Logic
+---------------------------- */
+(() => {
+  const cubeEl = document.getElementById('cube');
+  const size = 3; // 3x3x3 Rubik's Cube
+  const cubieSize = 64;
+  const stickerColors = {
+    U: 'color-white',   // Up - White
+    D: 'color-yellow',  // Down - Yellow
+    F: 'color-green',   // Front - Green
+    B: 'color-blue',    // Back - Blue
+    L: 'color-orange',  // Left - Orange
+    R: 'color-red',     // Right - Red
+  };
+  
+  // We'll create cubies identified by their coordinates (x,y,z) - each from 0 to 2
+  // The cube center is (1,1,1)
+  // We'll store cubie elements and their current rotation state
+  let cubies = [];
+
+  // Rotation state is not fully implemented for solving — UI interaction only for now
+  let cubeRotationX = -20;
+  let cubeRotationY = -20;
+
+  // Create cubies
+  function createCubies() {
+    cubies.forEach(c => c.el.remove());
+    cubies = [];
+
+    for(let x=0; x<size; x++){
+      for(let y=0; y<size; y++){
+        for(let z=0; z<size; z++){
+          // Skip center cube without visible faces (optional: show for simplicity all cubies)
+          // We'll show all cubies to enable rotation layers
+          const cubie = document.createElement('div');
+          cubie.classList.add('cubie');
+          cubie.style.width = cubieSize + 'px';
+          cubie.style.height = cubieSize + 'px';
+
+          // Position cubie in 3D space - offset relative to center
+          const offset = (cubieSize + 4); // 4 is spacing
+          const xPos = (x - 1) * offset;
+          const yPos = (1 - y) * offset; // invert y to have top as low y
+          const zPos = (z - 1) * offset;
+
+          cubie.style.transform = `translate3d(${xPos}px, ${yPos}px, ${zPos}px)`;
+
+          // Add faces with stickers where appropriate
+          addFaces(cubie, x, y, z);
+
+          // Store cubie object
+          cubies.push({
+            x, y, z,
+            el: cubie,
+            currentRotation: {x:0,y:0,z:0},
+          });
+
+          cubeEl.appendChild(cubie);
+        }
+      }
+    }
+  }
+
+  // Add faces to a single cubie with stickers depending on position
+  function addFaces(cubie, x, y, z) {
+    // Faces (U, D, F, B, L, R)
+    // Add face element with appropriate class
+    
+    // Up face (y=0)
+    if(y === 0) {
+      const face = createFace('face-top', stickerColors.U);
+      cubie.appendChild(face);
+    }
+    // Down face (y=2)
+    if(y === 2) {
+      const face = createFace('face-bottom', stickerColors.D);
+      cubie.appendChild(face);
+    }
+    // Front face (z=2)
+    if(z === 2) {
+      const face = createFace('face-front', stickerColors.F);
+      cubie.appendChild(face);
+    }
+    // Back face (z=0)
+    if(z === 0) {
+      const face = createFace('face-back', stickerColors.B);
+      cubie.appendChild(face);
+    }
+    // Left face (x=0)
+    if(x === 0) {
+      const face = createFace('face-left', stickerColors.L);
+      cubie.appendChild(face);
+    }
+    // Right face (x=2)
+    if(x === 2) {
+      const face = createFace('face-right', stickerColors.R);
+      cubie.appendChild(face);
+    }
+  }
+
+  // Create face element with a colored sticker
+  function createFace(faceClass, colorClass) {
+    const face = document.createElement('div');
+    face.classList.add('face', faceClass);
+
+    const sticker = document.createElement('div');
+    sticker.classList.add('sticker', colorClass);
+
+    face.appendChild(sticker);
+    return face;
+  }
+
+  // Helpers for rotation
+  // We will rotate the whole cube by dragging, and turn layers by buttons or keys
+
+  // Manage Turn moves: U, U', D, D', L, L', R, R', F, F', B, B'
+  // For simplicity, only rotate the cubies that belong to the layer
+  function turnLayer(move) {
+    // Based on the move, identify which cubies are affected and what rotation to apply
+    // The move notation is standard:
+    // U, D, L, R, F, B clockwise turn
+    // U', D', L', R', F', B' counterclockwise turn
+
+    // Layer selectors and axis of rotation:
+    // U: y=0 clockwise about Y-axis (+90deg)
+    // D: y=2 clockwise about Y-axis (-90deg)
+    // L: x=0 clockwise about X-axis (-90deg)
+    // R: x=2 clockwise about X-axis (+90deg)
+    // F: z=2 clockwise about Z-axis (+90deg)
+    // B: z=0 clockwise about Z-axis (-90deg)
+
+    const clockwise = !move.endsWith("'");
+
+    // Base move letter (without apostrophe)
+    const baseMove = clockwise ? move : move.slice(0, -1);
+
+    // Identify layer cubies
+    let axis, layerSelector, angle;
+    switch(baseMove) {
+      case 'U':
+        axis = 'y';
+        layerSelector = (c) => c.y === 0;
+        angle = clockwise ? 90 : -90;
+        break;
+      case 'D':
+        axis = 'y';
+        layerSelector = (c) => c.y === 2;
+        angle = clockwise ? -90 : 90;
+        break;
+      case 'L':
+        axis = 'x';
+        layerSelector = (c) => c.x === 0;
+        angle = clockwise ? -90 : 90;
+        break;
+      case 'R':
+        axis = 'x';
+        layerSelector = (c) => c.x === 2;
+        angle = clockwise ? 90 : -90;
+        break;
+      case 'F':
+        axis = 'z';
+        layerSelector = (c) => c.z === 2;
+        angle = clockwise ? 90 : -90;
+        break;
+      case 'B':
+        axis = 'z';
+        layerSelector = (c) => c.z === 0;
+        angle = clockwise ? -90 : 90;
+        break;
+      default:
+        console.warn('Unknown move:', move);
+        return;
+    }
+
+    // Rotate the affected cubies visually and update their logical positions
+    const affectedCubies = cubies.filter(layerSelector);
+    
+    // Animate rotation using CSS transitions on cubie elements
+    const animationDuration = 400;
+
+    // Disable interactions during animations
+    disableControls(true);
+
+    // Store initial transforms for all affected cubies
+    affectedCubies.forEach(c => {
+      c.el.style.transition = `transform ${animationDuration}ms ease-out`;
+    });
+
+    // Perform rotation visually by updating each affected cubie's transform
+    affectedCubies.forEach(c => {
+      // Extract current translation
+      const style = window.getComputedStyle(c.el);
+      const tr = style.transform === 'none' ? '' : style.transform;
+
+      // Build rotation transform string for rotation
+      const rotStr = {
+        x: `rotateX(${angle}deg)`,
+        y: `rotateY(${angle}deg)`,
+        z: `rotateZ(${angle}deg)`
+      };
+
+      // Apply new transform with rotation added
+      c.el.style.transform = `${tr} ${rotStr[axis]}`;
+    });
+
+    // After animation, update cubie logical coords and reset CSS rotations
+    setTimeout(() => {
+      // Remove transition and reset transform to original without the rotation for layering normalization
+      affectedCubies.forEach(c => {
+        c.el.style.transition = '';
+        c.el.style.transform = getTransformForCubie(c);
+      });
+
+      // Update logical positions
+      affectedCubies.forEach(c => {
+        const old = { x: c.x, y: c.y, z: c.z };
+        let newCoords = { x: old.x, y: old.y, z: old.z };
+
+        // Helper rotate function on layer coordinates
+        // Rotation is around the cube center (1,1,1)
+        // Translate coordinates to -1..1 range
+        let rx = old.x - 1;
+        let ry = old.y - 1;
+        let rz = old.z - 1;
+
+        let nx, ny, nz; // new coords in -1..1 range
+
+        // Rotation matrices 90 degree around axis
+        switch(axis) {
+          case 'x':
+            nx = rx;
+            ny = clockwise ? -rz : rz;
+            nz = clockwise ? ry : -ry;
+            break;
+          case 'y':
+            nx = clockwise ? rz : -rz;
+            ny = ry;
+            nz = clockwise ? -rx : rx;
+            break;
+          case 'z':
+            nx = clockwise ? -ry : ry;
+            ny = clockwise ? rx : -rx;
+            nz = rz;
+            break;
+        }
+
+        // Translate back to 0..2
+        newCoords.x = nx + 1;
+        newCoords.y = ny + 1;
+        newCoords.z = nz + 1;
+
+        // Snap coordinates to integers to avoid float precision issues
+        c.x = Math.round(newCoords.x);
+        c.y = Math.round(newCoords.y);
+        c.z = Math.round(newCoords.z);
+      });
+
+      // Sort cubies array by coordinates to keep order stable (optional)
+      cubies.sort((a,b) => (a.x - b.x) || (a.y - b.y) || (a.z - b.z));
+
+      renderCubies();
+
+      // Re-enable controls
+      disableControls(false);
+    }, animationDuration);
+  }
+
+  // Get transform string for the cubie based on its coordinates for positioning
+  function getTransformForCubie(c) {
+    const offset = cubieSize + 4;
+    const xPos = (c.x - 1) * offset;
+    const yPos = (1 - c.y) * offset;
+    const zPos = (c.z - 1) * offset;
+    return `translate3d(${xPos}px, ${yPos}px, ${zPos}px)`;
+  }
+
+  // Rerender each cubie's position transform after rotation
+  function renderCubies() {
+    cubies.forEach(c => {
+      c.el.style.transform = getTransformForCubie(c);
+    });
+  }
+
+  // Enable or disable controls during animation
+  function disableControls(disable) {
+    document.querySelectorAll('.control-btn').forEach(btn => {
+      btn.disabled = disable;
+      if(disable) {
+        btn.style.cursor = 'not-allowed';
+      } else {
+        btn.style.cursor = 'pointer';
+      }
+    });
+  }
+
+  // Shuffle the cube by applying random moves
+  function shuffleCube(movesCount = 25) {
+    const moves = ['U','U\'','D','D\'','L','L\'','R','R\'','F','F\'','B','B\''];
+    let count = 0;
+
+    disableControls(true);
+
+    // Run sequential moves with delays for animation
+    function doMove() {
+      if(count >= movesCount) {
+        disableControls(false);
+        return;
+      }
+      const move = moves[Math.floor(Math.random() * moves.length)];
+      turnLayer(move);
+      count++;
+      setTimeout(doMove, 500);
+    }
+
+    doMove();
+  }
+
+  // Initialize cube creation and event handlers
+  function init() {
+    createCubies();
+
+    // Controls buttons events
+    document.querySelectorAll('.control-btn[data-move]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        turnLayer(e.currentTarget.dataset.move);
+      });
+    });
+
+    document.getElementById('shuffle-btn').addEventListener('click', () => {
+      shuffleCube(20);
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      createCubies();
+    });
+
+    // Drag to rotate whole cube
+    let dragStartX, dragStartY, isDragging = false, lastX = cubeRotationX, lastY = cubeRotationY;
+
+    cubeEl.addEventListener('pointerdown', e => {
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      cubeEl.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('pointermove', e => {
+      if(!isDragging) return;
+      const deltaX = e.clientX - dragStartX;
+      const deltaY = e.clientY - dragStartY;
+
+      cubeRotationY = lastY + deltaX * 0.5;
+      cubeRotationX = lastX - deltaY * 0.5;
+
+      cubeEl.style.transform = `rotateX(${cubeRotationX}deg) rotateY(${cubeRotationY}deg)`;
+    });
+
+    window.addEventListener('pointerup', e => {
+      if(isDragging) {
+        isDragging = false;
+        lastX = cubeRotationX;
+        lastY = cubeRotationY;
+        cubeEl.style.cursor = 'grab';
+      }
+    });
+
+    // Keyboard input for layer turns
+    window.addEventListener('keydown', e => {
+      if(document.activeElement.tagName === 'BUTTON' || document.activeElement === cubeEl) {
+        // Only process if on cube or buttons to avoid interference
+        const keyMap = {
+          'U': 'U',
+          'u': 'U',
+          'D': 'D',
+          'd': 'D',
+          'F': 'F',
+          'f': 'F',
+          'B': 'B',
+          'b': 'B',
+          'L': 'L',
+          'l': 'L',
+          'R': 'R',
+          'r': 'R',
+          // apostrophe for inverse
+          "'": '\''
+        };
+
+        // Kombine key with apostrophe pressed previously for inverse move support
+        if(e.key in keyMap) {
+          e.preventDefault();
+          lastKeyPressed = keyMap[e.key];
+        }
+        // For simplicity, only trigger clockwise turns on keypress
+
+        // Alternatively, assign keys for moves with modifiers if desired
+        // For now, no inverse moves by keyboard
+        if(['U','D','F','B','L','R'].includes(e.key.toUpperCase())) {
+          turnLayer(e.key.toUpperCase());
+        }
+      }
+    });
+
+    cubeEl.style.cursor = 'grab';
+  }
+
+  // Initialize everything
+  init();
+})();
+</script>
+</body>
+</html>
+
