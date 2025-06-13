@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Startup Ideas Cost & Gain Tracker</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<style>
+  /* Reset and base styles */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background: #f6f9fc;
+    color: #1f2937;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  /* Root theme variables */
+  :root {
+    --primary-color:#2563eb;
+    --secondary-color:#9333ea;
+    --bg-surface:#ffffff;
+    --border-radius:12px;
+    --gap:16px;
+    --shadow:0 4px 12px rgba(0,0,0,0.1);
+    --text-primary:#1f2937;
+    --text-secondary:#6b7280;
+  }
+  /* Layout containers */
+  .app {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 56px 1fr;
+    grid-template-areas:
+      "header header"
+      "sidebar main";
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-surface);
+  }
+  header.app-header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: var(--primary-color);
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 700;
+    box-shadow: var(--shadow);
+  }
+  aside.sidebar {
+    grid-area: sidebar;
+    border-right: 1px solid #e5e7eb;
+    padding: 24px 16px;
+    background: var(--bg-surface);
+    overflow-y: auto;
+  }
+  main.main-content {
+    grid-area: main;
+    padding: 24px 32px;
+    overflow-y: auto;
+  }
+  /* Sidebar header */
+  .sidebar h2 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    color: var(--primary-color);
+  }
+  /* Idea list */
+  ul.idea-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  ul.idea-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: var(--border-radius);
+    background: #f9fafb;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  ul.idea-list li:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+  ul.idea-list li.active {
+    background: var(--secondary-color);
+    color: white;
+  }
+  ul.idea-list li span.idea-title {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 180px;
+  }
+  ul.idea-list li button.delete-btn {
+    border: none;
+    background: transparent;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 0;
+  }
+  ul.idea-list li button.delete-btn:hover {
+    color: #b91c1c;
+  }
+
+  /* Forms */
+  form {
+    max-width: 600px;
+    background: var(--bg-surface);
+    padding: 24px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+  }
+  form h3 {
+    margin-top: 0; margin-bottom: 24px;
+    color: var(--secondary-color);
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  input[type="text"],
+  input[type="number"],
+  textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 18px;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: #eff6ff;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  button.submit-btn {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button.submit-btn:hover {
+    background: var(--secondary-color);
+  }
+  button.submit-btn:disabled {
+    background: #a5b4fc;
+    cursor: not-allowed;
+  }
+
+  /* Summary section */
+  .summary {
+    margin-top: 40px;
+    max-width: 720px;
+  }
+  .summary h3 {
+    color: var(--primary-color);
+    margin-bottom: 24px;
+  }
+  .summary .summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 18px;
+    margin-bottom: 12px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+  }
+  .summary .summary-item.positive {
+    color: #16a34a;
+  }
+  .summary .summary-item.negative {
+    color: #dc2626;
+  }
+
+  /* Responsive */
+  @media(max-width: 768px) {
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr 1fr;
+      grid-template-areas:
+        "header"
+        "main"
+        "sidebar";
+    }
+    aside.sidebar {
+      border-top: 1px solid #e5e7eb;
+      border-right: none;
+      padding: 16px 12px;
+      max-height: 280px;
+    }
+    main.main-content {
+      max-height: calc(100vh - 56px - 280px);
+      padding: 16px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app" role="main" aria-label="Startup Ideas Finance Tracker">
+  <header class="app-header">
+    Startup Ideas Finance Tracker
+  </header>
+  <aside class="sidebar" aria-label="List of startup ideas">
+    <h2>Ideas</h2>
+    <ul class="idea-list" id="ideaList" tabindex="0" aria-live="polite" aria-relevant="additions removals"></ul>
+  </aside>
+  <main class="main-content">
+    <form id="ideaForm" aria-label="Add or edit startup idea form">
+      <h3 id="formTitle">Add New Idea</h3>
+      <label for="ideaTitle">Idea Title *</label>
+      <input type="text" id="ideaTitle" name="ideaTitle" placeholder="Enter idea name" required autocomplete="off" />
+      <label for="ideaDescription">Description</label>
+      <textarea id="ideaDescription" name="ideaDescription" placeholder="Describe your idea..."></textarea>
+      <label for="ideaCost">Estimated Total Cost ($) *</label>
+      <input type="number" id="ideaCost" name="ideaCost" placeholder="e.g. 5000" min="0" step="0.01" required />
+      <label for="ideaGain">Expected Gain ($) *</label>
+      <input type="number" id="ideaGain" name="ideaGain" placeholder="e.g. 15000" min="0" step="0.01" required />
+      <label for="ideaLoss">Potential Loss ($)</label>
+      <input type="number" id="ideaLoss" name="ideaLoss" placeholder="e.g. 3000" min="0" step="0.01" value="0" />
+
+      <button type="submit" class="submit-btn" id="submitBtn" disabled>Add Idea</button>
+      <button type="button" class="submit-btn" id="cancelEditBtn" style="background:#6b7280; margin-left:12px; display:none;">Cancel</button>
+    </form>
+
+    <section class="summary" aria-label="Financial summary for all ideas">
+      <h3>Overall Summary</h3>
+      <div class="summary-item" id="totalCost">Total Cost: $0</div>
+      <div class="summary-item" id="totalGain">Total Expected Gain: $0</div>
+      <div class="summary-item" id="totalLoss">Total Potential Loss: $0</div>
+      <div class="summary-item" id="netProfit" aria-live="polite">Net Profit: $0</div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Access elements
+  const ideaListElem = document.getElementById('ideaList');
+  const ideaForm = document.getElementById('ideaForm');
+  const formTitle = document.getElementById('formTitle');
+  const ideaTitleInput = document.getElementById('ideaTitle');
+  const ideaDescriptionInput = document.getElementById('ideaDescription');
+  const ideaCostInput = document.getElementById('ideaCost');
+  const ideaGainInput = document.getElementById('ideaGain');
+  const ideaLossInput = document.getElementById('ideaLoss');
+  const submitBtn = document.getElementById('submitBtn');
+  const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+  const totalCostElem = document.getElementById('totalCost');
+  const totalGainElem = document.getElementById('totalGain');
+  const totalLossElem = document.getElementById('totalLoss');
+  const netProfitElem = document.getElementById('netProfit');
+
+  let ideas = JSON.parse(localStorage.getItem('startupIdeas') || '[]');
+  let editIdeaId = null;
+
+  // Utility money formatter with 2 decimals
+  function formatCurrency(num) {
+    return '$' + Number(num).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  // Save ideas to localStorage
+  function saveIdeas() {
+    localStorage.setItem('startupIdeas', JSON.stringify(ideas));
+  }
+
+  // Render ideas list
+  function renderIdeaList(selectedId = null) {
+    ideaListElem.innerHTML = '';
+    if(ideas.length === 0) {
+      ideaListElem.innerHTML = '<li style="color:#6b7280;">No ideas yet. Add one!</li>';
+      return;
+    }
+    ideas.forEach(idea => {
+      const li = document.createElement('li');
+      li.classList.toggle('active', idea.id === selectedId);
+
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'idea-title';
+      titleSpan.textContent = idea.title;
+      li.appendChild(titleSpan);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.title = 'Delete Idea';
+      deleteBtn.setAttribute('aria-label', 'Delete ' + idea.title);
+      deleteBtn.innerHTML = '<span class="material-icons">delete</span>';
+      deleteBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if(confirm(`Delete idea "${idea.title}"? This cannot be undone.`)) {
+          ideas = ideas.filter(i => i.id !== idea.id);
+          saveIdeas();
+          // If deleted idea was in edit mode, reset form
+          if(editIdeaId === idea.id) cancelEdit();
+          renderIdeaList();
+          updateSummary();
+        }
+      });
+      li.appendChild(deleteBtn);
+
+      li.tabIndex = 0;
+      li.role = 'button';
+      li.setAttribute('aria-pressed', idea.id === selectedId ? 'true' : 'false');
+
+      li.addEventListener('click', () => {
+        startEditIdea(idea.id);
+      });
+      li.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          li.click();
+        }
+      });
+      ideaListElem.appendChild(li);
+    });
+  }
+
+  // Validate form fields to enable/disable submit button
+  function validateForm() {
+    const titleValid = ideaTitleInput.value.trim().length > 0;
+    const costValid = ideaCostInput.value.trim() !== '' && !isNaN(ideaCostInput.value) && Number(ideaCostInput.value) >= 0;
+    const gainValid = ideaGainInput.value.trim() !== '' && !isNaN(ideaGainInput.value) && Number(ideaGainInput.value) >= 0;
+    submitBtn.disabled = !(titleValid && costValid && gainValid);
+  }
+
+  // Reset form for a new idea
+  function resetForm() {
+    ideaTitleInput.value = '';
+    ideaDescriptionInput.value = '';
+    ideaCostInput.value = '';
+    ideaGainInput.value = '';
+    ideaLossInput.value = '0';
+    submitBtn.textContent = 'Add Idea';
+    formTitle.textContent = 'Add New Idea';
+    cancelEditBtn.style.display = 'none';
+    editIdeaId = null;
+    validateForm();
+  }
+
+  // Start editing an idea
+  function startEditIdea(id) {
+    const idea = ideas.find(i => i.id === id);
+    if(!idea) return;
+    editIdeaId = id;
+    ideaTitleInput.value = idea.title;
+    ideaDescriptionInput.value = idea.description || '';
+    ideaCostInput.value = idea.cost;
+    ideaGainInput.value = idea.gain;
+    ideaLossInput.value = idea.loss || 0;
+    submitBtn.textContent = 'Update Idea';
+    formTitle.textContent = 'Edit Idea';
+    cancelEditBtn.style.display = 'inline-block';
+    renderIdeaList(editIdeaId);
+    validateForm();
+  }
+
+  // Cancel edit mode and reset form
+  function cancelEdit() {
+    resetForm();
+    renderIdeaList();
+  }
+
+  // Update financial summary display
+  function updateSummary() {
+    let totalCost = 0;
+    let totalGain = 0;
+    let totalLoss = 0;
+    ideas.forEach(i => {
+      totalCost += Number(i.cost) || 0;
+      totalGain += Number(i.gain) || 0;
+      totalLoss += Number(i.loss) || 0;
+    });
+    const netProfit = totalGain - totalCost - totalLoss;
+
+    totalCostElem.textContent = 'Total Cost: ' + formatCurrency(totalCost);
+    totalGainElem.textContent = 'Total Expected Gain: ' + formatCurrency(totalGain);
+    totalLossElem.textContent = 'Total Potential Loss: ' + formatCurrency(totalLoss);
+    netProfitElem.textContent = 'Net Profit: ' + formatCurrency(netProfit);
+    netProfitElem.className = 'summary-item ' + (netProfit >= 0 ? 'positive' : 'negative');
+  }
+
+  // Handle form submit (add or update idea)
+  ideaForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const title = ideaTitleInput.value.trim();
+    const description = ideaDescriptionInput.value.trim();
+    const cost = parseFloat(ideaCostInput.value);
+    const gain = parseFloat(ideaGainInput.value);
+    const loss = parseFloat(ideaLossInput.value) || 0;
+
+    if(editIdeaId) {
+      // Update existing idea
+      const idea = ideas.find(i => i.id === editIdeaId);
+      if(idea) {
+        idea.title = title;
+        idea.description = description;
+        idea.cost = cost;
+        idea.gain = gain;
+        idea.loss = loss;
+      }
+    } else {
+      // Add new idea
+      const newIdea = {
+        id: 'idea_' + Date.now(),
+        title,
+        description,
+        cost,
+        gain,
+        loss,
+      };
+      ideas.push(newIdea);
+    }
+    saveIdeas();
+    resetForm();
+    renderIdeaList();
+    updateSummary();
+  });
+
+  // Form inputs listen to validate form content
+  [ideaTitleInput, ideaCostInput, ideaGainInput, ideaLossInput].forEach(input => {
+    input.addEventListener('input', validateForm);
+  });
+  ideaDescriptionInput.addEventListener('input', () => {
+    // no validation on description
+  });
+
+  // Cancel edit button
+  cancelEditBtn.addEventListener('click', () => {
+    cancelEdit();
+  });
+
+  // Initial rendering
+  renderIdeaList();
+  updateSummary();
+  validateForm();
+</script>
+</body>
+</html>
+
